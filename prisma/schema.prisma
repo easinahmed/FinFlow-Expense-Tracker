@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String
+  password     String
+  currency     String        @default("USD")
+  avatar       String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+  categories   Category[]
+  budgets      Budget[]
+
+  @@map("users")
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  name         String
+  icon         String        @default("tag")
+  color        String        @default("#6366f1")
+  type         CategoryType  @default(BOTH)
+  isDefault    Boolean       @default(false)
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+  createdAt    DateTime      @default(now())
+
+  @@map("categories")
+}
+
+model Transaction {
+  id            String          @id @default(cuid())
+  type          TransactionType
+  amount        Float
+  description   String
+  note          String?
+  date          DateTime
+  paymentMethod PaymentMethod   @default(CASH)
+  currency      String          @default("USD")
+  tags          String[]        @default([])
+  isRecurring   Boolean         @default(false)
+  recurringFreq RecurringFreq?
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      Category        @relation(fields: [categoryId], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@map("transactions")
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  amount     Float
+  spent      Float    @default(0)
+  month      Int
+  year       Int
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, categoryId, month, year])
+  @@map("budgets")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  MOBILE_PAYMENT
+  CRYPTO
+  OTHER
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+  BOTH
+}
+
+enum RecurringFreq {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
