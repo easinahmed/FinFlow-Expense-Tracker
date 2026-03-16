@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Category } from '@/types';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/toaster';
 
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);

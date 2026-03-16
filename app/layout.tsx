@@ -40,8 +40,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <body suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="dark" storageKey="theme" disableTransitionOnChange>
           {children}
           <Toaster />
         </ThemeProvider>

@@ -12,18 +12,24 @@ interface BeforeInstallPromptEvent extends Event {
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showBanner, setShowBanner] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    const dismissed = typeof window !== 'undefined' && localStorage.getItem('pwa-install-dismissed');
+    if (dismissed) return;
+
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      const dismissed = localStorage.getItem('pwa-install-dismissed');
-      if (!dismissed) setShowBanner(true);
+      setShowBanner(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
+
+  if (!mounted) return null;
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
@@ -35,10 +41,12 @@ export function PWAInstallPrompt() {
 
   const handleDismiss = () => {
     setShowBanner(false);
-    localStorage.setItem('pwa-install-dismissed', '1');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pwa-install-dismissed', '1');
+    }
   };
 
-  if (!showBanner) return null;
+  if (!mounted || !showBanner) return null;
 
   return (
     <div className="fixed bottom-20 lg:bottom-4 left-4 right-4 lg:left-auto lg:right-4 lg:w-80 z-50 animate-slide-up">

@@ -297,7 +297,7 @@ Click the **install icon (⊕)** in the address bar, or go to Settings → Insta
 
 | Screen | Description |
 |--------|-------------|
-| Login | Clean auth card with demo button |
+| Login | Clean auth card |
 | Dashboard | Stats grid + charts + budgets + recent txns |
 | Transactions | Full filterable table with pagination |
 | Income/Expenses | Filtered views with quick-add |
@@ -320,12 +320,6 @@ Click the **install icon (⊕)** in the address bar, or go to Settings → Insta
 | Dark/Light mode | ✅ next-themes |
 | Offline support | ✅ Service Worker caching |
 | Android installable | ✅ Full PWA manifest |
-
----
-
-## 🧪 Demo Account
-
-When running locally, register a new account or use the **"Try Demo Account"** button on the login page (requires a demo user in your database).
 
 ---
 

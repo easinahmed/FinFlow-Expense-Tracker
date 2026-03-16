@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Transaction, TransactionFilters, PaginatedResponse } from '@/types';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/toaster';
 
 export function useTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
