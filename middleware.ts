@@ -1,32 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth';
+import { jwtVerify } from 'jose';
 
-const PUBLIC_PATHS = ['/auth/login', '/auth/register', '/api/auth/login', '/api/auth/register'];
+// Do NOT import from lib/auth.ts — bcryptjs breaks Edge Runtime
+// jose is Edge-compatible
+
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production'
+);
+
+const COOKIE_NAME = 'finflow-auth';
+
+const PROTECTED_PAGES = [
+  '/dashboard', '/transactions', '/income', '/expenses',
+  '/categories', '/reports', '/budget', '/settings',
+];
+
+const PUBLIC_PATHS = [
+  '/auth/login', '/auth/register',
+  '/api/auth/login', '/api/auth/register',
+];
+
+async function verifyToken(token: string) {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Allow public paths
+  // Always allow static assets
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/icons') ||
+    pathname === '/manifest.json' ||
+    pathname === '/sw.js' ||
+    pathname === '/favicon.ico'
+  ) {
+    return NextResponse.next();
+  }
+
+  // Allow public auth paths
   if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  // Allow static files, api routes except protected ones
-  if (pathname.startsWith('/_next') || pathname.startsWith('/icons') || pathname === '/manifest.json' || pathname === '/sw.js') {
-    return NextResponse.next();
-  }
+  // Check protected pages and API routes
+  const isProtectedPage = PROTECTED_PAGES.some(p => pathname.startsWith(p));
+  const isProtectedApi = pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/');
 
-  // Check auth for app routes
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/transactions') || 
-      pathname.startsWith('/income') || pathname.startsWith('/expenses') || 
-      pathname.startsWith('/categories') || pathname.startsWith('/reports') || 
-      pathname.startsWith('/budget') || pathname.startsWith('/settings') ||
-      (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/'))) {
-    
-    const token = req.cookies.get('finflow-auth')?.value;
-    
+  if (isProtectedPage || isProtectedApi) {
+    const token = req.cookies.get(COOKIE_NAME)?.value;
+
     if (!token) {
-      if (pathname.startsWith('/api/')) {
+      if (isProtectedApi) {
         return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
       }
       return NextResponse.redirect(new URL('/auth/login', req.url));
@@ -34,7 +64,7 @@ export async function middleware(req: NextRequest) {
 
     const payload = await verifyToken(token);
     if (!payload) {
-      if (pathname.startsWith('/api/')) {
+      if (isProtectedApi) {
         return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
       }
       return NextResponse.redirect(new URL('/auth/login', req.url));

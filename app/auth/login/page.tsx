@@ -98,6 +98,27 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-3 pt-0">
+          <div className="relative w-full">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Demo account</span>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            className="w-full text-sm"
+            onClick={() => {
+              const emailInput = document.getElementById('email') as HTMLInputElement;
+              const passInput = document.getElementById('password') as HTMLInputElement;
+              if (emailInput) emailInput.value = 'demo@finflow.app';
+              if (passInput) passInput.value = 'Demo1234';
+              handleSubmit(onSubmit)({ email: 'demo@finflow.app', password: 'Demo1234' });
+            }}
+          >
+            Try Demo Account
+          </Button>
           <p className="text-sm text-muted-foreground text-center">
             Don&apos;t have an account?{' '}
             <Link href="/auth/register" className="text-primary hover:underline font-medium">

@@ -11,25 +11,23 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/misc';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/language-context';
 
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/transactions', icon: ArrowUpDown, label: 'Transactions' },
-  { href: '/income', icon: TrendingUp, label: 'Income' },
-  { href: '/expenses', icon: TrendingDown, label: 'Expenses' },
-  { href: '/categories', icon: Tag, label: 'Categories' },
-  { href: '/reports', icon: BarChart3, label: 'Reports' },
-  { href: '/budget', icon: Target, label: 'Budget' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
-];
-
-interface SidebarProps {
-  user: { name: string; email: string; currency: string; avatar?: string | null };
-}
-
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user }: { user: { name: string; email: string; currency: string; avatar?: string | null } }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useLanguage();
+
+  const navItems = [
+    { href: '/dashboard', icon: LayoutDashboard, label: t('dashboard') },
+    { href: '/transactions', icon: ArrowUpDown, label: t('transactions') },
+    { href: '/income', icon: TrendingUp, label: t('income') },
+    { href: '/expenses', icon: TrendingDown, label: t('expenses') },
+    { href: '/categories', icon: Tag, label: t('categories') },
+    { href: '/reports', icon: BarChart3, label: t('reports') },
+    { href: '/budget', icon: Target, label: t('budget') },
+    { href: '/settings', icon: Settings, label: t('settings') },
+  ];
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -39,7 +37,6 @@ export function Sidebar({ user }: SidebarProps) {
 
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col border-r border-border bg-card z-50">
-      {/* Logo */}
       <div className="p-6 border-b border-border">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
@@ -52,17 +49,11 @@ export function Sidebar({ user }: SidebarProps) {
         </Link>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">Main Menu</p>
         {navItems.map(({ href, icon: Icon, label }) => {
           const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
           return (
-            <Link
-              key={href}
-              href={href}
-              className={cn('nav-item', isActive ? 'nav-item-active' : 'nav-item-inactive')}
-            >
+            <Link key={href} href={href} className={cn('nav-item', isActive ? 'nav-item-active' : 'nav-item-inactive')}>
               <Icon className="w-4 h-4 shrink-0" />
               <span>{label}</span>
               {isActive && <ChevronRight className="w-3 h-3 ml-auto opacity-60" />}
@@ -71,7 +62,6 @@ export function Sidebar({ user }: SidebarProps) {
         })}
       </nav>
 
-      {/* User Profile */}
       <div className="p-4 border-t border-border">
         <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
           <Avatar className="w-9 h-9 shrink-0">

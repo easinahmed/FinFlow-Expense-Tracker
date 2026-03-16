@@ -5,25 +5,24 @@ import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/language-context';
 
-const pageTitles: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/transactions': 'Transactions',
-  '/income': 'Income',
-  '/expenses': 'Expenses',
-  '/categories': 'Categories',
-  '/reports': 'Reports & Analytics',
-  '/budget': 'Budget Tracker',
-  '/settings': 'Settings',
-};
-
-interface TopBarProps {
-  user: { name: string; currency: string };
-}
-
-export function TopBar({ user }: TopBarProps) {
+export function TopBar({ user }: { user: { name: string; currency: string } }) {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
+  const { t } = useLanguage();
+
+  const pageTitles: Record<string, string> = {
+    '/dashboard': t('dashboard'),
+    '/transactions': t('transactions'),
+    '/income': t('income'),
+    '/expenses': t('expenses'),
+    '/categories': t('categories'),
+    '/reports': t('reports'),
+    '/budget': t('budget'),
+    '/settings': t('settings'),
+  };
+
   const title = pageTitles[pathname] || 'FinFlow';
 
   return (
@@ -34,31 +33,20 @@ export function TopBar({ user }: TopBarProps) {
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </div>
-
       <div className="flex items-center gap-2">
-        {/* Quick add button */}
         <Button asChild size="sm" className="hidden sm:flex gap-1.5 shadow-md shadow-primary/20">
           <Link href="/expenses?action=add">
             <Plus className="w-4 h-4" />
-            Add Expense
+            {t('addExpenseBtn')}
           </Link>
         </Button>
-
-        {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="w-4 h-4" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
         </Button>
-
-        {/* Theme toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        >
+        <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
           <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
         </Button>
       </div>
     </header>

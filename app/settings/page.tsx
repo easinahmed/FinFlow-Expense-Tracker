@@ -9,19 +9,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/misc';
-import { Separator } from '@/components/ui/misc';
+import { Switch, Separator, Avatar, AvatarFallback } from '@/components/ui/misc';
 import { toast } from '@/components/ui/toaster';
-import { Avatar, AvatarFallback } from '@/components/ui/misc';
 import { CURRENCIES } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
-import { Loader2, User, Palette, Shield, Bell, LogOut, Smartphone } from 'lucide-react';
+import { Loader2, User, Palette, Shield, LogOut, Smartphone, Languages } from 'lucide-react';
+import { useLanguage, LANGUAGES } from '@/lib/language-context';
 
 export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const router = useRouter();
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<UpdateProfileInput>({
@@ -46,10 +46,11 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (res.ok) { toast({ title: 'Profile updated!' }); }
+      if (res.ok) { toast({ title: t('profileUpdated') }); }
       else { const j = await res.json(); throw new Error(j.error); }
-    } catch (e: any) { toast({ title: 'Error', description: e.message, variant: 'destructive' }); }
-    finally { setLoading(false); }
+    } catch (e: any) {
+      toast({ title: t('error'), description: e.message, variant: 'destructive' });
+    } finally { setLoading(false); }
   };
 
   const handleLogout = async () => {
@@ -60,14 +61,15 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
+
       {/* Profile */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
             <User className="w-4 h-4" />
-            <CardTitle className="text-base">Profile</CardTitle>
+            <CardTitle className="text-base">{t('profile')}</CardTitle>
           </div>
-          <CardDescription>Manage your personal information</CardDescription>
+          <CardDescription>{t('manageProfile')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
@@ -84,11 +86,11 @@ export default function SettingsPage() {
           <Separator />
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
-              <Label>Name</Label>
+              <Label>{t('name')}</Label>
               <Input {...register('name')} className={errors.name ? 'border-destructive' : ''} />
             </div>
             <div className="space-y-1.5">
-              <Label>Currency</Label>
+              <Label>{t('currency')}</Label>
               <Select defaultValue={user?.currency || 'USD'} onValueChange={v => setValue('currency', v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -97,9 +99,44 @@ export default function SettingsPage() {
               </Select>
             </div>
             <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : 'Save Changes'}
+              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('saving')}</> : t('saveChanges')}
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Language */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Languages className="w-4 h-4" />
+            <CardTitle className="text-base">{t('language')}</CardTitle>
+          </div>
+          <CardDescription>{t('selectLanguage')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3">
+            {LANGUAGES.map(lang => (
+              <button
+                key={lang.value}
+                onClick={() => setLanguage(lang.value)}
+                className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
+                  language === lang.value
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-muted-foreground/40 hover:bg-muted/30'
+                }`}
+              >
+                <span className="text-2xl">{lang.flag}</span>
+                <div>
+                  <p className="font-semibold text-sm">{lang.nativeLabel}</p>
+                  <p className="text-xs text-muted-foreground">{lang.label}</p>
+                </div>
+                {language === lang.value && (
+                  <div className="ml-auto w-2 h-2 rounded-full bg-primary" />
+                )}
+              </button>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
@@ -108,14 +145,14 @@ export default function SettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Palette className="w-4 h-4" />
-            <CardTitle className="text-base">Appearance</CardTitle>
+            <CardTitle className="text-base">{t('appearance')}</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-sm">Dark Mode</p>
-              <p className="text-xs text-muted-foreground">Switch between light and dark theme</p>
+              <p className="font-medium text-sm">{t('darkMode')}</p>
+              <p className="text-xs text-muted-foreground">{t('switchTheme')}</p>
             </div>
             <Switch checked={theme === 'dark'} onCheckedChange={c => setTheme(c ? 'dark' : 'light')} />
           </div>
@@ -127,24 +164,21 @@ export default function SettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Smartphone className="w-4 h-4" />
-            <CardTitle className="text-base">Mobile App</CardTitle>
+            <CardTitle className="text-base">{t('mobileApp')}</CardTitle>
           </div>
-          <CardDescription>Install FinFlow as a native-like Android app</CardDescription>
+          <CardDescription>{t('installFinFlow')}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent>
           <div className="bg-muted/50 rounded-xl p-4 space-y-2">
-            <p className="text-sm font-medium">How to install on Android:</p>
+            <p className="text-sm font-medium">{t('howToInstall')}</p>
             <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-              <li>Open FinFlow in Chrome on Android</li>
-              <li>Tap the three-dot menu (⋮) in the top right</li>
-              <li>Select "Add to Home Screen"</li>
-              <li>Tap "Add" in the dialog that appears</li>
-              <li>FinFlow will appear on your home screen like a native app!</li>
+              <li>{t('installStep1')}</li>
+              <li>{t('installStep2')}</li>
+              <li>{t('installStep3')}</li>
+              <li>{t('installStep4')}</li>
+              <li>{t('installStep5')}</li>
             </ol>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Features: Works offline, push notifications, native navigation, no browser bar.
-          </p>
         </CardContent>
       </Card>
 
@@ -153,28 +187,27 @@ export default function SettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4" />
-            <CardTitle className="text-base">Security</CardTitle>
+            <CardTitle className="text-base">{t('security')}</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
             <div>
-              <p className="text-sm font-medium">Account Email</p>
+              <p className="text-sm font-medium">{t('accountEmail')}</p>
               <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">JWT authentication · bcrypt password hashing · HttpOnly cookies</p>
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
+      {/* Sign Out */}
       <Card className="border-destructive/30">
         <CardHeader>
-          <CardTitle className="text-base text-destructive">Sign Out</CardTitle>
+          <CardTitle className="text-base text-destructive">{t('signOut')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Button variant="destructive" onClick={handleLogout} className="gap-1.5">
-            <LogOut className="w-4 h-4" /> Sign Out of FinFlow
+            <LogOut className="w-4 h-4" /> {t('signOutOf')}
           </Button>
         </CardContent>
       </Card>
