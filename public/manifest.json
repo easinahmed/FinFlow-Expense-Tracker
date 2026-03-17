@@ -2,7 +2,7 @@
   "name": "FinFlow - Expense Tracker",
   "short_name": "FinFlow",
   "description": "Track your income and expenses with beautiful insights",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0f1117",
   "theme_color": "#6366f1",
@@ -84,3 +84,4 @@
     }
   ]
 }
+

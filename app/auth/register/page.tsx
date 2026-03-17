@@ -44,9 +44,9 @@ export default function RegisterPage() {
       toast({ title: t('accountCreated'), description: t('welcomeToFinFlow') });
       router.push('/dashboard');
       router.refresh();
+      return; // Let loader persist while routing
     } catch (err: any) {
-      toast({ title: 'Registration failed', description: err.message, variant: 'destructive' });
-    } finally {
+      toast({ title: t('error') || 'Registration failed', description: err.message, variant: 'destructive' });
       setLoading(false);
     }
   };

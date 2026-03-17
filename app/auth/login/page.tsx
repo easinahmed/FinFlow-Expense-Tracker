@@ -37,9 +37,9 @@ export default function LoginPage() {
       toast({ title: t('welcomeBack') });
       router.push('/dashboard');
       router.refresh();
+      return; // Do not clear loading state on success since we are navigating away
     } catch (err: any) {
-      toast({ title: 'Login failed', description: err.message, variant: 'destructive' });
-    } finally {
+      toast({ title: t('error') || 'Login failed', description: err.message, variant: 'destructive' });
       setLoading(false);
     }
   };
