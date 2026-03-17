@@ -4,36 +4,27 @@ import { prisma } from '@/lib/prisma';
 import { categorySchema } from '@/lib/validations';
 import { apiError, apiSuccess } from '@/lib/utils';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+type RouteParams = { params: Promise<{ id: string }> };
+
+export async function PUT(req: NextRequest, { params }: RouteParams) {
   const auth = await getAuthUser();
   if (!auth) return apiError('Unauthorized', 401);
-
-  const existing = await prisma.category.findFirst({
-    where: { id: params.id, userId: auth.userId },
-  });
-  if (!existing) return apiError('Category not found or cannot edit default', 404);
-
+  const { id } = await params;
+  const existing = await prisma.category.findFirst({ where: { id, userId: auth.userId } });
+  if (!existing) return apiError('Category not found', 404);
   const body = await req.json();
   const result = categorySchema.safeParse(body);
   if (!result.success) return apiError(result.error.errors[0].message, 400);
-
-  const category = await prisma.category.update({
-    where: { id: params.id },
-    data: result.data,
-  });
-
+  const category = await prisma.category.update({ where: { id }, data: result.data });
   return apiSuccess(category);
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: RouteParams) {
   const auth = await getAuthUser();
   if (!auth) return apiError('Unauthorized', 401);
-
-  const existing = await prisma.category.findFirst({
-    where: { id: params.id, userId: auth.userId },
-  });
-  if (!existing) return apiError('Category not found or cannot delete default', 404);
-
-  await prisma.category.delete({ where: { id: params.id } });
+  const { id } = await params;
+  const existing = await prisma.category.findFirst({ where: { id, userId: auth.userId } });
+  if (!existing) return apiError('Category not found', 404);
+  await prisma.category.delete({ where: { id } });
   return apiSuccess({ message: 'Category deleted' });
 }
