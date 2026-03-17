@@ -8,7 +8,7 @@ A full-stack, installable Progressive Web App for tracking income, expenses, bud
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | Next.js 15 (App Router), TypeScript, Tailwind CSS |
+| **Frontend** | Next.js 16 (App Router), TypeScript, Tailwind CSS |
 | **UI** | ShadCN-style Radix UI components, Recharts |
 | **Forms** | React Hook Form + Zod validation |
 | **Backend** | Next.js API Routes (Edge-compatible) |
