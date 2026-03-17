@@ -60,7 +60,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-8 max-w-2xl pb-20">
 
       {/* Profile */}
       <Card>
@@ -201,7 +201,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Sign Out */}
-      <Card className="border-destructive/30">
+      <Card className="border-destructive/30 mb-5">
         <CardHeader>
           <CardTitle className="text-base text-destructive">{t('signOut')}</CardTitle>
         </CardHeader>

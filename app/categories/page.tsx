@@ -15,14 +15,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/toaster';
 import { Plus, Edit2, Trash2, Lock, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/lib/language-context';
 
 const ICON_OPTIONS = ['tag','utensils','car','shopping-bag','zap','book-open','heart','film','plane','briefcase','laptop','trending-up','gift','store','home','coffee','music','gamepad','dumbbell','pill'];
 const COLOR_OPTIONS = ['#6366f1','#22c55e','#ef4444','#f59e0b','#3b82f6','#ec4899','#8b5cf6','#06b6d4','#10b981','#f97316','#84cc16','#14b8a6'];
 
 function CategoryForm({ category, onSubmit, onClose }: { category?: Category; onSubmit: (d: CategoryInput) => Promise<void>; onClose: () => void }) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CategoryInput>({
-    resolver: zodResolver(categorySchema),
+    resolver: zodResolver(categorySchema) as any,
     defaultValues: { name: category?.name || '', icon: category?.icon || 'tag', color: category?.color || '#6366f1', type: category?.type || 'BOTH' },
   });
   const color = watch('color');
@@ -31,32 +33,32 @@ function CategoryForm({ category, onSubmit, onClose }: { category?: Category; on
   const onFormSubmit = async (data: CategoryInput) => {
     setLoading(true);
     try { await onSubmit(data); onClose(); }
-    catch (e: any) { toast({ title: 'Error', description: e.message, variant: 'destructive' }); }
+    catch (e: any) { toast({ title: t('error'), description: e.message, variant: 'destructive' }); }
     finally { setLoading(false); }
   };
 
   return (
-    <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onFormSubmit as any)} className="space-y-4">
       <div className="space-y-1.5">
-        <Label>Name</Label>
-        <Input placeholder="Category name" {...register('name')} className={errors.name ? 'border-destructive' : ''} />
+        <Label>{t('name')}</Label>
+        <Input placeholder={t('name')} {...register('name')} className={errors.name ? 'border-destructive' : ''} />
         {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
       </div>
 
       <div className="space-y-1.5">
-        <Label>Type</Label>
+        <Label>{t('type')}</Label>
         <Select defaultValue={category?.type || 'BOTH'} onValueChange={v => setValue('type', v as any)}>
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="BOTH">Both</SelectItem>
-            <SelectItem value="INCOME">Income</SelectItem>
-            <SelectItem value="EXPENSE">Expense</SelectItem>
+            <SelectItem value="BOTH">{t('both')}</SelectItem>
+            <SelectItem value="INCOME">{t('income')}</SelectItem>
+            <SelectItem value="EXPENSE">{t('expenses')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-1.5">
-        <Label>Color</Label>
+        <Label>{t('color')}</Label>
         <div className="flex flex-wrap gap-2">
           {COLOR_OPTIONS.map(c => (
             <button key={c} type="button" onClick={() => setValue('color', c)}
@@ -68,18 +70,18 @@ function CategoryForm({ category, onSubmit, onClose }: { category?: Category; on
       </div>
 
       <div className="space-y-1.5">
-        <Label>Icon (name)</Label>
+        <Label>{t('iconName')}</Label>
         <div className="flex gap-2">
-          <Input placeholder="e.g. tag, heart" {...register('icon')} className="flex-1" />
+          <Input placeholder={t('iconPlaceholder')} {...register('icon')} className="flex-1" />
         </div>
-        <p className="text-xs text-muted-foreground">Lucide icon name: tag, utensils, car, heart, film, etc.</p>
+        <p className="text-xs text-muted-foreground">{t('iconHint')}</p>
       </div>
 
       <div className="flex gap-2 pt-2">
-        <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancel</Button>
+        <Button type="button" variant="outline" className="flex-1" onClick={onClose}>{t('cancel')}</Button>
         <Button type="submit" className="flex-1" disabled={loading}>
           {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-          {category ? 'Update' : 'Create'} Category
+          {category ? t('updateCategory') : t('createCategory')}
         </Button>
       </div>
     </form>
@@ -87,6 +89,7 @@ function CategoryForm({ category, onSubmit, onClose }: { category?: Category; on
 }
 
 export default function CategoriesPage() {
+  const { t } = useLanguage();
   const { categories, loading, fetchCategories, createCategory, updateCategory, deleteCategory } = useCategories();
   const [showForm, setShowForm] = useState(false);
   const [editCat, setEditCat] = useState<Category | null>(null);
@@ -100,21 +103,21 @@ export default function CategoriesPage() {
 
   const handleCreate = async (data: CategoryInput) => {
     await createCategory(data);
-    toast({ title: 'Category created!' });
+    toast({ title: t('categoryCreated') });
     setShowForm(false);
   };
 
   const handleUpdate = async (data: CategoryInput) => {
     if (!editCat) return;
     await updateCategory(editCat.id, data);
-    toast({ title: 'Category updated!' });
+    toast({ title: t('categoryUpdated') });
     setEditCat(null);
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    try { await deleteCategory(deleteId); toast({ title: 'Category deleted' }); setDeleteId(null); }
-    catch (e: any) { toast({ title: 'Error', description: e.message, variant: 'destructive' }); }
+    try { await deleteCategory(deleteId); toast({ title: t('categoryDeleted') }); setDeleteId(null); }
+    catch (e: any) { toast({ title: t('error'), description: e.message, variant: 'destructive' }); }
   };
 
   const CategoryGroup = ({ title, cats, badge }: { title: string; cats: Category[]; badge: string }) => (
@@ -134,7 +137,7 @@ export default function CategoriesPage() {
                 <p className="text-sm font-medium">{cat.name}</p>
                 {cat.isDefault && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Lock className="w-2.5 h-2.5" /> Default
+                    <Lock className="w-2.5 h-2.5" /> {t('default')}
                   </div>
                 )}
               </div>
@@ -159,7 +162,7 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex justify-end">
         <Button onClick={() => setShowForm(true)} className="gap-1.5">
-          <Plus className="w-4 h-4" /> New Category
+          <Plus className="w-4 h-4" /> {t('newCategory')}
         </Button>
       </div>
 
@@ -171,16 +174,16 @@ export default function CategoriesPage() {
         </div>
       ) : (
         <div className="space-y-8">
-          {incomeCategories.length > 0 && <CategoryGroup title="Income Categories" cats={incomeCategories} badge={`${incomeCategories.length}`} />}
-          {expenseCategories.length > 0 && <CategoryGroup title="Expense Categories" cats={expenseCategories} badge={`${expenseCategories.length}`} />}
-          {bothCategories.length > 0 && <CategoryGroup title="General Categories" cats={bothCategories} badge={`${bothCategories.length}`} />}
+          {incomeCategories.length > 0 && <CategoryGroup title={t('incomeCategories')} cats={incomeCategories} badge={`${incomeCategories.length}`} />}
+          {expenseCategories.length > 0 && <CategoryGroup title={t('expenseCategories')} cats={expenseCategories} badge={`${expenseCategories.length}`} />}
+          {bothCategories.length > 0 && <CategoryGroup title={t('generalCategories')} cats={bothCategories} badge={`${bothCategories.length}`} />}
         </div>
       )}
 
       {/* Create Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>New Category</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('newCategory')}</DialogTitle></DialogHeader>
           <CategoryForm onSubmit={handleCreate} onClose={() => setShowForm(false)} />
         </DialogContent>
       </Dialog>
@@ -188,7 +191,7 @@ export default function CategoriesPage() {
       {/* Edit Dialog */}
       <Dialog open={!!editCat} onOpenChange={() => setEditCat(null)}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Edit Category</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('editCategory')}</DialogTitle></DialogHeader>
           {editCat && <CategoryForm category={editCat} onSubmit={handleUpdate} onClose={() => setEditCat(null)} />}
         </DialogContent>
       </Dialog>
@@ -196,11 +199,11 @@ export default function CategoriesPage() {
       {/* Delete Dialog */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <DialogContent className="sm:max-w-sm">
-          <DialogHeader><DialogTitle>Delete Category?</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">This will remove the category. Transactions using it will remain but may lose their category.</p>
+          <DialogHeader><DialogTitle>{t('deleteCategoryTitle')}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">{t('deleteCategoryDesc')}</p>
           <div className="flex gap-2 mt-2">
-            <Button variant="outline" className="flex-1" onClick={() => setDeleteId(null)}>Cancel</Button>
-            <Button variant="destructive" className="flex-1" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" className="flex-1" onClick={() => setDeleteId(null)}>{t('cancel')}</Button>
+            <Button variant="destructive" className="flex-1" onClick={handleDelete}>{t('delete')}</Button>
           </div>
         </DialogContent>
       </Dialog>

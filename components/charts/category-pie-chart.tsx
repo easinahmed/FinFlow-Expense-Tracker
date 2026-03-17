@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { formatCurrency } from '@/lib/utils';
+import { useLanguage } from '@/lib/language-context';
 
 interface CategoryPieChartProps {
   data: { name: string; value: number; color: string }[];
@@ -20,10 +21,12 @@ function CustomTooltip({ active, payload, currency }: any) {
 }
 
 export function CategoryPieChart({ data, currency }: CategoryPieChartProps) {
+  const { t } = useLanguage();
+
   if (!data.length) {
     return (
       <div className="flex items-center justify-center h-48 text-sm text-muted-foreground">
-        No spending data this month
+        {t('noExpenseData')}
       </div>
     );
   }

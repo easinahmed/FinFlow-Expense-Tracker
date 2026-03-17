@@ -12,8 +12,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/lib/language-context';
 
 export default function LoginPage() {
+  const { t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -32,7 +34,7 @@ export default function LoginPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
-      toast({ title: 'Welcome back!', description: 'Redirecting to dashboard...' });
+      toast({ title: t('welcomeBack') });
       router.push('/dashboard');
       router.refresh();
     } catch (err: any) {
@@ -54,13 +56,13 @@ export default function LoginPage() {
 
       <Card className="border-border/50 shadow-2xl">
         <CardHeader className="space-y-1 pb-4">
-          <CardTitle className="text-2xl font-display">Welcome back</CardTitle>
-          <CardDescription>Sign in to your account to continue</CardDescription>
+          <CardTitle className="text-2xl font-display">{t('welcomeBack')}</CardTitle>
+          <CardDescription>{t('signInContinue')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -72,7 +74,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -93,15 +95,15 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Signing in...</> : 'Sign In'}
+              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('signingIn')}</> : t('signIn')}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-3 pt-0">
           <p className="text-sm text-muted-foreground text-center">
-            Don&apos;t have an account?{' '}
+            {t('dontHaveAccount')} {` `}
             <Link href="/auth/register" className="text-primary hover:underline font-medium">
-              Sign up
+              {t('signUp')}
             </Link>
           </p>
         </CardFooter>

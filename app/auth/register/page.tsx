@@ -12,8 +12,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/lib/language-context';
 
 export default function RegisterPage() {
+  const { t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -39,7 +41,7 @@ export default function RegisterPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
-      toast({ title: 'Account created!', description: 'Welcome to FinFlow.' });
+      toast({ title: t('accountCreated'), description: t('welcomeToFinFlow') });
       router.push('/dashboard');
       router.refresh();
     } catch (err: any) {
@@ -60,25 +62,25 @@ export default function RegisterPage() {
 
       <Card className="border-border/50 shadow-2xl">
         <CardHeader className="space-y-1 pb-4">
-          <CardTitle className="text-2xl font-display">Create account</CardTitle>
-          <CardDescription>Start tracking your finances today</CardDescription>
+          <CardTitle className="text-2xl font-display">{t('createAccount')}</CardTitle>
+          <CardDescription>{t('startTracking')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">{t('fullName')}</Label>
               <Input id="name" placeholder="John Doe" {...register('name')} className={errors.name ? 'border-destructive' : ''} />
               {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('email')}</Label>
               <Input id="email" type="email" placeholder="you@example.com" {...register('email')} className={errors.email ? 'border-destructive' : ''} />
               {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('password')}</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -94,9 +96,9 @@ export default function RegisterPage() {
               {password && (
                 <div className="space-y-1 mt-2">
                   {[
-                    { ok: passwordStrength.hasLength, text: '8+ characters' },
-                    { ok: passwordStrength.hasUpper, text: 'Uppercase letter' },
-                    { ok: passwordStrength.hasNumber, text: 'Number' },
+                    { ok: passwordStrength.hasLength, text: t('min8Chars') },
+                    { ok: passwordStrength.hasUpper, text: t('upperCaseLetter') },
+                    { ok: passwordStrength.hasNumber, text: t('numberCount') },
                   ].map(({ ok, text }) => (
                     <div key={text} className={`flex items-center gap-1.5 text-xs ${ok ? 'text-income' : 'text-muted-foreground'}`}>
                       <Check className="w-3 h-3" />
@@ -108,7 +110,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t('confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -120,14 +122,14 @@ export default function RegisterPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating account...</> : 'Create Account'}
+              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('creating')}</> : t('createAccount')}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="pt-0 justify-center">
           <p className="text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Link href="/auth/login" className="text-primary hover:underline font-medium">Sign in</Link>
+            {t('alreadyHaveAccount')} {` `}
+            <Link href="/auth/login" className="text-primary hover:underline font-medium">{t('signIn')}</Link>
           </p>
         </CardFooter>
       </Card>

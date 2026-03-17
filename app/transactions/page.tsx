@@ -17,9 +17,11 @@ import { toast } from '@/components/ui/toaster';
 import { Transaction, TransactionFilters } from '@/types';
 import { Plus, Search, Filter, MoreHorizontal, Edit2, Trash2, Download, ArrowUpDown, ChevronLeft, ChevronRight, SortAsc, SortDesc } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/lib/language-context';
 
 export default function TransactionsPage() {
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
   const { transactions, total, totalPages, loading, fetchTransactions, createTransaction, updateTransaction, deleteTransaction } = useTransactions();
   const { categories, fetchCategories } = useCategories();
 
@@ -54,7 +56,7 @@ export default function TransactionsPage() {
   const handleCreate = async (data: any) => {
     try {
       await createTransaction(data);
-      toast({ title: 'Transaction added!' });
+      toast({ title: t('transactionAdded') });
       fetchTransactions(filters);
     } catch (e: any) {
       toast({ title: 'Error', description: e.message, variant: 'destructive' });
@@ -65,7 +67,7 @@ export default function TransactionsPage() {
     if (!editTxn) return;
     try {
       await updateTransaction(editTxn.id, data);
-      toast({ title: 'Transaction updated!' });
+      toast({ title: t('transactionUpdated') });
       setEditTxn(null);
       fetchTransactions(filters);
     } catch (e: any) {
@@ -77,7 +79,7 @@ export default function TransactionsPage() {
     if (!deleteId) return;
     try {
       await deleteTransaction(deleteId);
-      toast({ title: 'Transaction deleted' });
+      toast({ title: t('transactionDeleted') });
       setDeleteId(null);
       fetchTransactions(filters);
     } catch (e: any) {
@@ -106,22 +108,22 @@ export default function TransactionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">{total} transactions total</p>
+          <p className="text-sm text-muted-foreground">{total} {t('transactions')} {t('total')}</p>
         </div>
         <div className="flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-1.5">
-                <Download className="w-4 h-4" /> Export
+                <Download className="w-4 h-4" /> {t('export')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleExport('csv')}>Export CSV</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('json')}>Export JSON</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('csv')}>{t('exportCSV')}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('json')}>{t('exportJSON')}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Button size="sm" className="gap-1.5" onClick={() => setShowForm(true)}>
-            <Plus className="w-4 h-4" /> Add Transaction
+            <Plus className="w-4 h-4" /> {t('addTransaction')}
           </Button>
         </div>
       </div>
@@ -133,7 +135,7 @@ export default function TransactionsPage() {
             <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search transactions..."
+                placeholder={t('searchTransactions')}
                 className="pl-9"
                 value={filters.search || ''}
                 onChange={e => handleFilter('search', e.target.value)}
@@ -144,17 +146,17 @@ export default function TransactionsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">All Types</SelectItem>
-                <SelectItem value="INCOME">Income</SelectItem>
-                <SelectItem value="EXPENSE">Expense</SelectItem>
+                <SelectItem value="ALL">{t('allTypes')}</SelectItem>
+                <SelectItem value="INCOME">{t('income')}</SelectItem>
+                <SelectItem value="EXPENSE">{t('expenses')}</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filters.categoryId || 'ALL'} onValueChange={v => handleFilter('categoryId', v === 'ALL' ? undefined : v)}>
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="All Categories" />
+                <SelectValue placeholder={t('allCategories')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">All Categories</SelectItem>
+                <SelectItem value="ALL">{t('allCategories')}</SelectItem>
                 {categories.map(c => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
@@ -162,18 +164,18 @@ export default function TransactionsPage() {
             </Select>
             <Select value={filters.paymentMethod || 'ALL'} onValueChange={v => handleFilter('paymentMethod', v)}>
               <SelectTrigger className="w-40">
-                <SelectValue placeholder="Payment Method" />
+                <SelectValue placeholder={t('paymentMethod')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">All Methods</SelectItem>
+                <SelectItem value="ALL">{t('allMethods')}</SelectItem>
                 {PAYMENT_METHODS.map(pm => (
                   <SelectItem key={pm.value} value={pm.value}>{pm.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <div className="flex gap-2">
-              <Input type="date" className="w-38" value={filters.startDate || ''} onChange={e => handleFilter('startDate', e.target.value)} placeholder="From" />
-              <Input type="date" className="w-38" value={filters.endDate || ''} onChange={e => handleFilter('endDate', e.target.value)} placeholder="To" />
+              <Input type="date" className="w-38" value={filters.startDate || ''} onChange={e => handleFilter('startDate', e.target.value)} placeholder={t('from')} />
+              <Input type="date" className="w-38" value={filters.endDate || ''} onChange={e => handleFilter('endDate', e.target.value)} placeholder={t('to')} />
             </div>
           </div>
         </CardContent>
@@ -185,12 +187,12 @@ export default function TransactionsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                <th className="px-4 py-3 text-left"><SortButton field="date" label="Date" /></th>
-                <th className="px-4 py-3 text-left"><SortButton field="description" label="Description" /></th>
-                <th className="px-4 py-3 text-left text-muted-foreground font-medium text-xs uppercase tracking-wider">Category</th>
-                <th className="px-4 py-3 text-left text-muted-foreground font-medium text-xs uppercase tracking-wider">Method</th>
-                <th className="px-4 py-3 text-right"><SortButton field="amount" label="Amount" /></th>
-                <th className="px-4 py-3 text-center text-muted-foreground font-medium text-xs uppercase tracking-wider">Actions</th>
+                <th className="px-4 py-3 text-left"><SortButton field="date" label={t('date')} /></th>
+                <th className="px-4 py-3 text-left"><SortButton field="description" label={t('description')} /></th>
+                <th className="px-4 py-3 text-left text-muted-foreground font-medium text-xs uppercase tracking-wider">{t('category')}</th>
+                <th className="px-4 py-3 text-left text-muted-foreground font-medium text-xs uppercase tracking-wider">{t('method')}</th>
+                <th className="px-4 py-3 text-right"><SortButton field="amount" label={t('amount')} /></th>
+                <th className="px-4 py-3 text-center text-muted-foreground font-medium text-xs uppercase tracking-wider">{t('actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -207,7 +209,7 @@ export default function TransactionsPage() {
               ) : transactions.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground text-sm">
-                    No transactions found. Adjust your filters or add a new transaction.
+                    {t('adjustFiltersOrAdd')}
                   </td>
                 </tr>
               ) : (
@@ -252,11 +254,11 @@ export default function TransactionsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => setEditTxn(txn)}>
-                            <Edit2 className="w-4 h-4 mr-2" /> Edit
+                            <Edit2 className="w-4 h-4 mr-2" /> {t('edit')}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(txn.id)}>
-                            <Trash2 className="w-4 h-4 mr-2" /> Delete
+                            <Trash2 className="w-4 h-4 mr-2" /> {t('delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -272,7 +274,7 @@ export default function TransactionsPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-border">
             <p className="text-sm text-muted-foreground">
-              Page {filters.page} of {totalPages} · {total} results
+              {t('page')} {filters.page} {t('of')} {totalPages} · {total} {t('results')}
             </p>
             <div className="flex gap-1">
               <Button variant="outline" size="icon" className="w-8 h-8" disabled={(filters.page || 1) <= 1}
@@ -304,11 +306,11 @@ export default function TransactionsPage() {
       {/* Delete Confirm */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <DialogContent className="sm:max-w-sm">
-          <DialogHeader><DialogTitle>Delete Transaction?</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">This action cannot be undone.</p>
+          <DialogHeader><DialogTitle>{t('deleteTransaction')}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">{t('cannotBeUndone')}</p>
           <div className="flex gap-2 mt-2">
-            <Button variant="outline" className="flex-1" onClick={() => setDeleteId(null)}>Cancel</Button>
-            <Button variant="destructive" className="flex-1" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" className="flex-1" onClick={() => setDeleteId(null)}>{t('cancel')}</Button>
+            <Button variant="destructive" className="flex-1" onClick={handleDelete}>{t('delete')}</Button>
           </div>
         </DialogContent>
       </Dialog>

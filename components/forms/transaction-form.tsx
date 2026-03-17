@@ -15,6 +15,7 @@ import { Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Transaction } from '@/types';
+import { useLanguage } from '@/lib/language-context';
 
 interface TransactionFormProps {
   open: boolean;
@@ -25,13 +26,14 @@ interface TransactionFormProps {
 }
 
 export function TransactionForm({ open, onClose, onSubmit, defaultType = 'EXPENSE', editData }: TransactionFormProps) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const { categories, fetchCategories } = useCategories();
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<TransactionInput>({
-    resolver: zodResolver(transactionSchema),
+    resolver: zodResolver(transactionSchema) as any,
     defaultValues: {
       type: defaultType,
       date: format(new Date(), 'yyyy-MM-dd'),
@@ -102,34 +104,34 @@ export function TransactionForm({ open, onClose, onSubmit, defaultType = 'EXPENS
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{editData ? 'Edit' : 'Add'} Transaction</DialogTitle>
+          <DialogTitle>{editData ? t('editTransaction') : t('addTransaction')}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(handleFormSubmit as any)} className="space-y-4">
           {/* Type Toggle */}
           <div className="grid grid-cols-2 gap-2">
-            {(['EXPENSE', 'INCOME'] as const).map(t => (
+            {(['EXPENSE', 'INCOME'] as const).map(tx => (
               <button
-                key={t}
+                key={tx}
                 type="button"
-                onClick={() => setValue('type', t)}
+                onClick={() => setValue('type', tx)}
                 className={cn(
                   'py-2.5 rounded-xl text-sm font-semibold border transition-all',
-                  txType === t
-                    ? t === 'INCOME'
+                  txType === tx
+                    ? tx === 'INCOME'
                       ? 'bg-income/10 border-income text-income'
                       : 'bg-expense/10 border-expense text-expense'
                     : 'bg-muted border-transparent text-muted-foreground hover:bg-muted/80'
                 )}
               >
-                {t === 'INCOME' ? '+ Income' : '− Expense'}
+                {tx === 'INCOME' ? t('addIncome') : t('addExpense')}
               </button>
             ))}
           </div>
 
           {/* Amount */}
           <div className="space-y-1.5">
-            <Label>Amount</Label>
+            <Label>{t('amount')}</Label>
             <Input
               type="number"
               step="0.01"
@@ -142,17 +144,17 @@ export function TransactionForm({ open, onClose, onSubmit, defaultType = 'EXPENS
 
           {/* Description */}
           <div className="space-y-1.5">
-            <Label>Description</Label>
-            <Input placeholder="What was this for?" {...register('description')} className={errors.description ? 'border-destructive' : ''} />
+            <Label>{t('description')}</Label>
+            <Input placeholder={t('whatWasThisFor')} {...register('description')} className={errors.description ? 'border-destructive' : ''} />
             {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
           </div>
 
           {/* Category */}
           <div className="space-y-1.5">
-            <Label>Category</Label>
+            <Label>{t('category')}</Label>
             <Select onValueChange={v => setValue('categoryId', v)} defaultValue={editData?.categoryId}>
               <SelectTrigger className={errors.categoryId ? 'border-destructive' : ''}>
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder={t('selectCategory')} />
               </SelectTrigger>
               <SelectContent>
                 {filteredCategories.map(c => (
@@ -171,11 +173,11 @@ export function TransactionForm({ open, onClose, onSubmit, defaultType = 'EXPENS
           {/* Date & Payment Method */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Date</Label>
+              <Label>{t('date')}</Label>
               <Input type="date" {...register('date')} className={errors.date ? 'border-destructive' : ''} />
             </div>
             <div className="space-y-1.5">
-              <Label>Payment Method</Label>
+              <Label>{t('paymentMethod')}</Label>
               <Select onValueChange={v => setValue('paymentMethod', v as any)} defaultValue={editData?.paymentMethod || 'CASH'}>
                 <SelectTrigger>
                   <SelectValue />
@@ -191,22 +193,22 @@ export function TransactionForm({ open, onClose, onSubmit, defaultType = 'EXPENS
 
           {/* Note */}
           <div className="space-y-1.5">
-            <Label>Note <span className="text-muted-foreground text-xs">(optional)</span></Label>
-            <Input placeholder="Additional notes..." {...register('note')} />
+            <Label>{t('note')} <span className="text-muted-foreground text-xs">({t('optional')})</span></Label>
+            <Input placeholder={t('additionalNotes')} {...register('note')} />
           </div>
 
           {/* Tags */}
           <div className="space-y-1.5">
-            <Label>Tags</Label>
+            <Label>{t('tags')}</Label>
             <div className="flex gap-2">
               <Input
                 value={tagInput}
                 onChange={e => setTagInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
-                placeholder="Add tag..."
+                placeholder={t('addTag')}
                 className="flex-1"
               />
-              <Button type="button" variant="outline" size="sm" onClick={addTag}>Add</Button>
+              <Button type="button" variant="outline" size="sm" onClick={addTag}>{t('add')}</Button>
             </div>
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
@@ -224,9 +226,9 @@ export function TransactionForm({ open, onClose, onSubmit, defaultType = 'EXPENS
 
           {/* Actions */}
           <div className="flex gap-2 pt-2">
-            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancel</Button>
+            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>{t('cancel')}</Button>
             <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : editData ? 'Update' : 'Add Transaction'}
+              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('saving')}</> : editData ? t('update') : t('addTransaction')}
             </Button>
           </div>
         </form>

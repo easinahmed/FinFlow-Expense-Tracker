@@ -27,7 +27,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     if (!existing) return apiError('Transaction not found', 404);
     const body = await req.json();
     const result = transactionSchema.safeParse({ ...body, amount: parseFloat(body.amount) });
-    if (!result.success) return apiError(result.error.errors[0].message, 400);
+    if (!result.success) return apiError(result.error.issues[0].message, 400);
     const data = result.data;
     if (existing.type === 'EXPENSE') {
       const oldDate = new Date(existing.date);

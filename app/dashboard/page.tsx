@@ -14,7 +14,7 @@ async function getDashboardData(userId: string) {
   // Build monthly data for last 12 months
   const months = Array.from({ length: 12 }, (_, i) => {
     const d = subMonths(now, 11 - i);
-    return { start: startOfMonth(d), end: endOfMonth(d), label: format(d, 'MMM') };
+    return { start: startOfMonth(d), end: endOfMonth(d), label: format(d, 'MMM').toLowerCase() };
   });
 
   const [allTimeGroups, monthlyGroups, prevMonthlyGroups, recentTxns, budgets, monthlyData] =

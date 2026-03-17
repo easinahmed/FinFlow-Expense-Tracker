@@ -18,8 +18,10 @@ import { formatCurrency, clampPercent } from '@/lib/utils';
 import { Plus, Target, AlertTriangle, CheckCircle2, Trash2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { useLanguage } from '@/lib/language-context';
 
 export default function BudgetPage() {
+  const { t } = useLanguage();
   const { categories, fetchCategories } = useCategories();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +57,7 @@ export default function BudgetPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
-      toast({ title: 'Budget saved!' });
+      toast({ title: t('budgetSaved') });
       setShowForm(false);
       reset();
       fetchBudgets();
@@ -66,10 +68,14 @@ export default function BudgetPage() {
 
   const deleteBudget = async (id: string) => {
     const res = await fetch(`/api/budgets?id=${id}`, { method: 'DELETE' });
-    if (res.ok) { toast({ title: 'Budget deleted' }); fetchBudgets(); }
+    if (res.ok) { toast({ title: t('budgetDeleted') }); fetchBudgets(); }
   };
 
-  const months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: format(new Date(2024, i), 'MMMM') }));
+  const getMonthName = (m: number) => {
+    const keys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'] as const;
+    return t(keys[m - 1]);
+  };
+  const months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: getMonthName(i + 1) }));
   const years = [2023, 2024, 2025, 2026];
 
   const totalBudgeted = budgets.reduce((s, b) => s + b.amount, 0);
@@ -90,7 +96,7 @@ export default function BudgetPage() {
         </Select>
         <div className="flex-1" />
         <Button onClick={() => setShowForm(true)} className="gap-1.5">
-          <Plus className="w-4 h-4" /> Add Budget
+          <Plus className="w-4 h-4" /> {t('addBudget')}
         </Button>
       </div>
 
@@ -100,9 +106,9 @@ export default function BudgetPage() {
           <CardContent className="p-5">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <p className="font-semibold">Overall Budget</p>
+                <p className="font-semibold">{t('overallBudget')}</p>
                 <p className="text-sm text-muted-foreground">
-                  {formatCurrency(totalSpent)} spent of {formatCurrency(totalBudgeted)}
+                  {formatCurrency(totalSpent)} {t('spentOf')} {formatCurrency(totalBudgeted)}
                 </p>
               </div>
               <div className={cn('text-2xl font-bold font-display', overallPct >= 100 ? 'text-expense' : overallPct >= 80 ? 'text-warning' : 'text-income')}>
@@ -113,7 +119,7 @@ export default function BudgetPage() {
             {overallPct >= 80 && (
               <div className={cn('flex items-center gap-2 mt-3 text-sm', overallPct >= 100 ? 'text-expense' : 'text-warning')}>
                 <AlertTriangle className="w-4 h-4" />
-                {overallPct >= 100 ? 'Budget exceeded! Review your spending.' : 'Approaching budget limit. Spend carefully!'}
+                {overallPct >= 100 ? t('budgetExceeded') : t('approachingLimit')}
               </div>
             )}
           </CardContent>
@@ -129,9 +135,9 @@ export default function BudgetPage() {
         <Card>
           <CardContent className="py-16 flex flex-col items-center gap-3 text-center">
             <Target className="w-12 h-12 text-muted-foreground/30" />
-            <p className="font-semibold">No budgets for this period</p>
-            <p className="text-sm text-muted-foreground">Set monthly budgets to track your spending limits</p>
-            <Button onClick={() => setShowForm(true)} className="gap-1.5 mt-2"><Plus className="w-4 h-4" />Create First Budget</Button>
+            <p className="font-semibold">{t('noBudgetsThisPeriod')}</p>
+            <p className="text-sm text-muted-foreground">{t('setBudgetsDescription')}</p>
+            <Button onClick={() => setShowForm(true)} className="gap-1.5 mt-2"><Plus className="w-4 h-4" />{t('createFirstBudget')}</Button>
           </CardContent>
         </Card>
       ) : (
@@ -152,7 +158,7 @@ export default function BudgetPage() {
                         </div>
                       )}
                       <div>
-                        <p className="font-semibold">{budget.category?.name || 'Overall Budget'}</p>
+                        <p className="font-semibold">{budget.category?.name || t('overallBudget')}</p>
                         <p className="text-xs text-muted-foreground">{months.find(m=>m.value===budget.month)?.label} {budget.year}</p>
                       </div>
                     </div>
@@ -165,11 +171,11 @@ export default function BudgetPage() {
                   </div>
                   <Progress value={pct} className={cn('h-2 mb-3', isOver ? '[&>div]:bg-expense' : isWarn ? '[&>div]:bg-warning' : '[&>div]:bg-income')} />
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Spent: <span className={cn('font-semibold', isOver ? 'text-expense' : 'text-foreground')}>{formatCurrency(budget.spent)}</span></span>
-                    <span className="text-muted-foreground">Budget: <span className="font-semibold text-foreground">{formatCurrency(budget.amount)}</span></span>
+                    <span className="text-muted-foreground">{t('spent')}: <span className={cn('font-semibold', isOver ? 'text-expense' : 'text-foreground')}>{formatCurrency(budget.spent)}</span></span>
+                    <span className="text-muted-foreground">{t('budget')}: <span className="font-semibold text-foreground">{formatCurrency(budget.amount)}</span></span>
                   </div>
                   <p className={cn('text-xs mt-1', remaining < 0 ? 'text-expense' : 'text-muted-foreground')}>
-                    {remaining < 0 ? `Over by ${formatCurrency(Math.abs(remaining))}` : `${formatCurrency(remaining)} remaining`}
+                    {remaining < 0 ? `${t('overBy')} ${formatCurrency(Math.abs(remaining))}` : `${formatCurrency(remaining)} ${t('remaining')}`}
                   </p>
                 </CardContent>
               </Card>
@@ -181,33 +187,33 @@ export default function BudgetPage() {
       {/* Add Budget Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Set Budget</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t('setBudgetTitle')}</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
-              <Label>Category <span className="text-xs text-muted-foreground">(optional — leave blank for overall)</span></Label>
+              <Label>{t('category')} <span className="text-xs text-muted-foreground">{t('noBudgetCategory')}</span></Label>
               <Select onValueChange={v => setValue('categoryId', v === 'overall' ? undefined : v)}>
-                <SelectTrigger><SelectValue placeholder="Overall budget" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t('overallBudget')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="overall">Overall Budget</SelectItem>
+                  <SelectItem value="overall">{t('overallBudget')}</SelectItem>
                   {categories.filter(c => c.type !== 'INCOME').map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Budget Amount</Label>
+              <Label>{t('budgetAmount')}</Label>
               <Input type="number" step="0.01" placeholder="500.00" {...register('amount', { valueAsNumber: true })} className={errors.amount ? 'border-destructive' : ''} />
               {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Month</Label>
+                <Label>{t('month')}</Label>
                 <Select defaultValue={String(month)} onValueChange={v => setValue('month', Number(v))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{months.map(m => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Year</Label>
+                <Label>{t('year')}</Label>
                 <Select defaultValue={String(year)} onValueChange={v => setValue('year', Number(v))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
@@ -215,9 +221,9 @@ export default function BudgetPage() {
               </div>
             </div>
             <div className="flex gap-2 pt-2">
-              <Button type="button" variant="outline" className="flex-1" onClick={() => setShowForm(false)}>Cancel</Button>
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setShowForm(false)}>{t('cancel')}</Button>
               <Button type="submit" className="flex-1" disabled={formLoading}>
-                {formLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}Save Budget
+                {formLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}{t('saveBudget')}
               </Button>
             </div>
           </form>

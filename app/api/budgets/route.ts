@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const result = budgetSchema.safeParse({ ...body, amount: parseFloat(body.amount) });
-  if (!result.success) return apiError(result.error.errors[0].message, 400);
+  if (!result.success) return apiError(result.error.issues[0].message, 400);
 
   const { amount, month, year, categoryId } = result.data;
 
@@ -46,19 +46,22 @@ export async function POST(req: NextRequest) {
 
   const spent = spentResult._sum.amount || 0;
 
-  const budget = await prisma.budget.upsert({
-    where: {
-      userId_categoryId_month_year: {
-        userId: auth.userId,
-        categoryId: categoryId || null,
-        month,
-        year,
-      },
-    },
-    update: { amount, spent },
-    create: { amount, spent, month, year, userId: auth.userId, categoryId: categoryId || null },
-    include: { category: true },
+  let budget = await prisma.budget.findFirst({
+    where: { userId: auth.userId, categoryId: categoryId || null, month, year },
   });
+
+  if (budget) {
+    budget = await prisma.budget.update({
+      where: { id: budget.id },
+      data: { amount, spent },
+      include: { category: true },
+    });
+  } else {
+    budget = await prisma.budget.create({
+      data: { amount, spent, month, year, userId: auth.userId, categoryId: categoryId || null },
+      include: { category: true },
+    });
+  }
 
   return apiSuccess(budget, 201);
 }

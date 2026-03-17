@@ -14,7 +14,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
   if (!existing) return apiError('Category not found', 404);
   const body = await req.json();
   const result = categorySchema.safeParse(body);
-  if (!result.success) return apiError(result.error.errors[0].message, 400);
+  if (!result.success) return apiError(result.error.issues[0].message, 400);
   const category = await prisma.category.update({ where: { id }, data: result.data });
   return apiSuccess(category);
 }

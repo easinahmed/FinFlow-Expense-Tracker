@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!result.success) {
-      return apiError(result.error.errors[0].message, 400);
+      return apiError(result.error.issues[0].message, 400);
     }
 
     const data = result.data;

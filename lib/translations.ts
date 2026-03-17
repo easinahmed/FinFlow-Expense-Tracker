@@ -57,6 +57,11 @@ export const translations = {
     export: 'Export',
     exportCSV: 'Export CSV',
     exportJSON: 'Export JSON',
+    adjustFiltersOrAdd: 'Adjust your filters or add a new transaction.',
+    results: 'results',
+    from: 'From',
+    to: 'To',
+    edit: 'Edit',
 
     // Forms
     addIncome: '+ Income',
@@ -74,6 +79,9 @@ export const translations = {
     saving: 'Saving...',
     creating: 'Creating account...',
     signingIn: 'Signing in...',
+    whatWasThisFor: 'What was this for?',
+    additionalNotes: 'Additional notes...',
+    tags: 'Tags',
 
     // Auth
     welcomeBack: 'Welcome back',
@@ -89,7 +97,12 @@ export const translations = {
     fullName: 'Full Name',
     confirmPassword: 'Confirm Password',
     alreadyHaveAccount: 'Already have an account?',
-    demoAccount: 'Demo account',
+    demoAccount: 'Demo Account',
+    accountCreated: 'Account created!',
+    welcomeToFinFlow: 'Welcome to FinFlow.',
+    min8Chars: '8+ characters',
+    upperCaseLetter: 'Uppercase letter',
+    numberCount: 'Number',
 
     // Settings
     profile: 'Profile',
@@ -141,6 +154,7 @@ export const translations = {
     month: 'Month',
     year: 'Year',
     spent: 'Spent',
+    spentOf: 'spent of',
     remaining: 'remaining',
     overBy: 'Over by',
     approachingLimit: 'Approaching budget limit. Spend carefully!',
@@ -150,6 +164,7 @@ export const translations = {
     createFirstBudget: 'Create First Budget',
     budgetSaved: 'Budget saved!',
     budgetDeleted: 'Budget deleted',
+    saveBudget: 'Save Budget',
     overall: 'Overall',
 
     // Reports
@@ -164,6 +179,14 @@ export const translations = {
 
     // Common
     error: 'Error',
+    type: 'Type',
+    both: 'Both',
+    color: 'Color',
+    iconPlaceholder: 'e.g. tag, heart',
+    iconHelp: 'Lucide icon name: tag, utensils, car, heart, film, etc.',
+    deleteCategoryTitle: 'Delete Category?',
+    deleteCategoryDesc: 'This will remove the category. Transactions using it will remain but may lose their category.',
+    defaultCategory: 'Default',
     success: 'Success',
     transactionAdded: 'Transaction added!',
     transactionUpdated: 'Transaction updated!',
@@ -182,7 +205,7 @@ export const translations = {
     noExpensesFound: 'No expenses found.',
     addIncomeBtn: 'Add Income',
     addExpenseBtn: 'Add Expense',
-    noBudgetCategory: 'Overall budget — leave blank for overall',
+    noBudgetCategory: '(optional — leave blank for overall)',
     jan: 'January', feb: 'February', mar: 'March', apr: 'April',
     may: 'May', jun: 'June', jul: 'July', aug: 'August',
     sep: 'September', oct: 'October', nov: 'November', dec: 'December',
@@ -244,6 +267,11 @@ export const translations = {
     export: 'রপ্তানি',
     exportCSV: 'CSV রপ্তানি',
     exportJSON: 'JSON রপ্তানি',
+    adjustFiltersOrAdd: 'আপনার ফিল্টারগুলি সামঞ্জস্য করুন বা একটি নতুন লেনদেন যোগ করুন।',
+    results: 'ফলাফল',
+    from: 'থেকে',
+    to: 'পর্যন্ত',
+    edit: 'সম্পাদনা',
 
     // Forms
     addIncome: '+ আয়',
@@ -261,6 +289,9 @@ export const translations = {
     saving: 'সংরক্ষণ হচ্ছে...',
     creating: 'অ্যাকাউন্ট তৈরি হচ্ছে...',
     signingIn: 'সাইন ইন হচ্ছে...',
+    whatWasThisFor: 'এটি কীসের জন্য ছিল?',
+    additionalNotes: 'অতিরিক্ত নোট...',
+    tags: 'ট্যাগ',
 
     // Auth
     welcomeBack: 'স্বাগতম',
@@ -277,6 +308,11 @@ export const translations = {
     confirmPassword: 'পাসওয়ার্ড নিশ্চিত করুন',
     alreadyHaveAccount: 'ইতিমধ্যে অ্যাকাউন্ট আছে?',
     demoAccount: 'ডেমো অ্যাকাউন্ট',
+    accountCreated: 'অ্যাকাউন্ট তৈরি হয়েছে!',
+    welcomeToFinFlow: 'FinFlow তে স্বাগতম।',
+    min8Chars: '৮+ অক্ষর',
+    upperCaseLetter: 'বড় হাতের অক্ষর',
+    numberCount: 'সংখ্যা',
 
     // Settings
     profile: 'প্রোফাইল',
@@ -328,6 +364,7 @@ export const translations = {
     month: 'মাস',
     year: 'বছর',
     spent: 'খরচ হয়েছে',
+    spentOf: 'খরচ হয়েছে, মোট',
     remaining: 'বাকি আছে',
     overBy: 'অতিরিক্ত',
     approachingLimit: 'বাজেটের সীমার কাছাকাছি। সতর্কতার সাথে খরচ করুন!',
@@ -337,6 +374,7 @@ export const translations = {
     createFirstBudget: 'প্রথম বাজেট তৈরি করুন',
     budgetSaved: 'বাজেট সংরক্ষিত হয়েছে!',
     budgetDeleted: 'বাজেট মুছে গেছে',
+    saveBudget: 'বাজেট সংরক্ষণ করুন',
     overall: 'সামগ্রিক',
 
     // Reports
@@ -351,6 +389,14 @@ export const translations = {
 
     // Common
     error: 'ত্রুটি',
+    type: 'প্রকার',
+    both: 'উভয়',
+    color: 'রঙ',
+    iconPlaceholder: 'উদাঃ ট্যাগ, হার্ট',
+    iconHelp: 'Lucide আইকনের নাম: tag, utensils, car, heart, film, ইত্যাদি।',
+    deleteCategoryTitle: 'বিভাগ মুছবেন?',
+    deleteCategoryDesc: 'এটি বিভাগটি মুছে ফেলবে। এটি ব্যবহার করা লেনদেনগুলি থাকবে কিন্তু তাদের বিভাগ হারাতে পারে।',
+    defaultCategory: 'ডিফল্ট',
     success: 'সফল',
     transactionAdded: 'লেনদেন যোগ হয়েছে!',
     transactionUpdated: 'লেনদেন আপডেট হয়েছে!',
@@ -369,7 +415,7 @@ export const translations = {
     noExpensesFound: 'কোনো খরচ পাওয়া যায়নি।',
     addIncomeBtn: 'আয় যোগ করুন',
     addExpenseBtn: 'খরচ যোগ করুন',
-    noBudgetCategory: 'সামগ্রিক বাজেট — সামগ্রিকের জন্য খালি রাখুন',
+    noBudgetCategory: '(ঐচ্ছিক — সামগ্রিকের জন্য খালি রাখুন)',
     jan: 'জানুয়ারি', feb: 'ফেব্রুয়ারি', mar: 'মার্চ', apr: 'এপ্রিল',
     may: 'মে', jun: 'জুন', jul: 'জুলাই', aug: 'আগস্ট',
     sep: 'সেপ্টেম্বর', oct: 'অক্টোবর', nov: 'নভেম্বর', dec: 'ডিসেম্বর',

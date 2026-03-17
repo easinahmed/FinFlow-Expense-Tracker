@@ -60,7 +60,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased pb-20;
   }
 
   h1, h2, h3, h4 {
@@ -120,6 +120,10 @@
 
   .nav-item-inactive {
     @apply text-muted-foreground hover:text-foreground hover:bg-muted;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 

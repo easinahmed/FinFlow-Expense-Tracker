@@ -11,8 +11,10 @@ import { SpendingTrendChart } from '@/components/charts/spending-trend-chart';
 import { formatCurrency } from '@/lib/utils';
 import { Download, TrendingUp, TrendingDown, PiggyBank } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/lib/language-context';
 
 export default function ReportsPage() {
+  const { t } = useLanguage();
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
@@ -62,7 +64,7 @@ export default function ReportsPage() {
           </Select>
         </div>
         <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExport}>
-          <Download className="w-4 h-4" /> Export CSV
+          <Download className="w-4 h-4" /> {t('exportCSV')}
         </Button>
       </div>
 
@@ -70,10 +72,10 @@ export default function ReportsPage() {
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'Monthly Income', value: stats.monthlyIncome, icon: TrendingUp, color: 'text-income' },
-            { label: 'Monthly Expense', value: stats.monthlyExpense, icon: TrendingDown, color: 'text-expense' },
-            { label: 'Net Savings', value: stats.monthlySavings, icon: PiggyBank, color: stats.monthlySavings >= 0 ? 'text-income' : 'text-expense' },
-            { label: 'Savings Rate', value: null, icon: null, color: 'text-primary', text: `${savingsRate}%` },
+            { label: t('monthlyIncome'), value: stats.monthlyIncome, icon: TrendingUp, color: 'text-income' },
+            { label: t('monthlyExpense'), value: stats.monthlyExpense, icon: TrendingDown, color: 'text-expense' },
+            { label: t('monthlySavings') || 'Net Savings', value: stats.monthlySavings, icon: PiggyBank, color: stats.monthlySavings >= 0 ? 'text-income' : 'text-expense' },
+            { label: t('savingsRate'), value: null, icon: null, color: 'text-primary', text: `${savingsRate}%` },
           ].map(({ label, value, icon: Icon, color, text }) => (
             <Card key={label}>
               <CardContent className="p-4">
@@ -90,16 +92,16 @@ export default function ReportsPage() {
       {/* Charts Tabs */}
       <Tabs defaultValue="overview">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
+          <TabsTrigger value="overview">{t('overview')}</TabsTrigger>
+          <TabsTrigger value="categories">{t('categories')}</TabsTrigger>
+          <TabsTrigger value="trends">{t('trends')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Income vs Expenses (12 months)</CardTitle>
-              <CardDescription>Monthly comparison over the past year</CardDescription>
+              <CardTitle className="text-base">{t('incomeVsExpense')} ({t('last12Months')})</CardTitle>
+              <CardDescription>{t('monthlyComparison')}</CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? <div className="h-64 bg-muted rounded-xl animate-pulse" /> : <MonthlyChart data={monthlyData} currency="USD" />}
@@ -111,7 +113,7 @@ export default function ReportsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Spending by Category</CardTitle>
+                <CardTitle className="text-base">{t('spendingByCategory')}</CardTitle>
                 <CardDescription>{months.find(m=>m.value===month)?.label} {year}</CardDescription>
               </CardHeader>
               <CardContent>
@@ -120,13 +122,13 @@ export default function ReportsPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Top Spending Categories</CardTitle>
+                <CardTitle className="text-base">{t('topSpendingCategories')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {loading ? (
                   Array.from({length:5}).map((_,i) => <div key={i} className="h-8 bg-muted rounded animate-pulse" />)
                 ) : categoryData.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-8 text-center">No expense data for this period</p>
+                  <p className="text-sm text-muted-foreground py-8 text-center">{t('noExpenseData')}</p>
                 ) : (
                   categoryData.map((cat, i) => {
                     const max = categoryData[0]?.value || 1;
@@ -152,8 +154,8 @@ export default function ReportsPage() {
         <TabsContent value="trends" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Spending Trends</CardTitle>
-              <CardDescription>Net savings trend over 12 months</CardDescription>
+              <CardTitle className="text-base">{t('spendingTrends')}</CardTitle>
+              <CardDescription>{t('netSavingsTrend')}</CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? <div className="h-64 bg-muted rounded-xl animate-pulse" /> : <SpendingTrendChart data={monthlyData} currency="USD" />}
