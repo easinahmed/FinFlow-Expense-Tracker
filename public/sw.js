@@ -1,7 +1,5 @@
 const CACHE_NAME = 'finflow-v1';
 const STATIC_ASSETS = [
-  '/',
-  '/dashboard',
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
@@ -10,8 +8,25 @@ const STATIC_ASSETS = [
 // Install event
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Safely cache static assets without failing the entire block if one fails
+      for (const asset of STATIC_ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (e) {
+          console.warn('Failed to cache asset on install:', asset);
+        }
+      }
+      
+      // Attempt to cache the root offline (will cache the resolved 200 response of the redirect)
+      try {
+        const rootResponse = await fetch('/');
+        if (rootResponse.ok) {
+          await cache.put('/', rootResponse.clone());
+        }
+      } catch (e) {
+        // ignore
+      }
     })
   );
   self.skipWaiting();
@@ -52,6 +67,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           return caches.match(request).then((cached) => {
+            // Fallback to / if the exact route isn't cached
             return cached || caches.match('/');
           });
         })
