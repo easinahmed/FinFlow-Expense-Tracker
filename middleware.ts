@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-// Do NOT import from lib/auth.ts — bcryptjs breaks Edge Runtime
-// jose is Edge-compatible
-
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production'
 );
@@ -32,7 +29,6 @@ async function verifyToken(token: string) {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Always allow static assets
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/icons') ||
@@ -43,12 +39,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow public auth paths
   if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  // Check protected pages and API routes
   const isProtectedPage = PROTECTED_PAGES.some(p => pathname.startsWith(p));
   const isProtectedApi = pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/');
 
