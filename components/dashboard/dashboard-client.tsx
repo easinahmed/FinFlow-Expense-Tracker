@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/misc';
 import { MonthlyChart } from '@/components/charts/monthly-chart';
 import { CategoryPieChart } from '@/components/charts/category-pie-chart';
-import { ArrowUpRight, ArrowDownRight, Wallet, TrendingUp, TrendingDown, PiggyBank, Target, AlertTriangle } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Wallet, TrendingUp, TrendingDown, PiggyBank, Target, AlertTriangle, SkipBackIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -56,7 +56,7 @@ export function DashboardClient({ data, currency, userName }: DashboardClientPro
           { title: t('totalBalance'), amount: stats.totalBalance, subtitle: t('allTimeNet'), icon: Wallet, change: null },
           { title: t('monthlyIncome'), amount: stats.monthlyIncome, subtitle: t('thisMonth'), icon: TrendingUp, change: incomeChange },
           { title: t('monthlyExpense'), amount: stats.monthlyExpense, subtitle: t('thisMonth'), icon: TrendingDown, change: -expenseChange },
-          { title: t('monthlySavings'), amount: stats.monthlySavings, subtitle: t('incomeMinusExpenses'), icon: PiggyBank, change: null },
+          { title: t('monthlySavings'), amount: stats.monthlySavings, subtitle: t('incomeMinusExpenses'), icon: SkipBackIcon, change: null },
         ].map(({ title, amount, subtitle, icon: Icon, change }) => (
           <div key={title} className="stat-card bg-card border border-border p-4 sm:p-6">
             <div className="flex items-start justify-between">

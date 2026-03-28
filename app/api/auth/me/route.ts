@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest) {
   const user = await prisma.user.update({
     where: { id: auth.userId },
     data: result.data,
-    select: { id: true, name: true, email: true, currency: true },
+    select: { id: true, name: true, email: true, currency: true, avatar: true },
   });
 
   return apiSuccess({ user });

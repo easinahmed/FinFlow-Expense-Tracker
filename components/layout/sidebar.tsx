@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/misc';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/misc';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/language-context';
 
@@ -65,6 +65,7 @@ export function Sidebar({ user }: { user: { name: string; email: string; currenc
       <div className="p-4 border-t border-border">
         <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
           <Avatar className="w-9 h-9 shrink-0">
+            {user.avatar && <AvatarImage src={user.avatar} alt={user.name} className="object-cover" />}
             <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
               {user.name.charAt(0).toUpperCase()}
             </AvatarFallback>

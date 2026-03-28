@@ -1,25 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateProfileSchema, UpdateProfileInput } from '@/lib/validations';
+import { updateProfileSchema, UpdateProfileInput, changePasswordSchema, ChangePasswordInput } from '@/lib/validations';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch, Separator, Avatar, AvatarFallback } from '@/components/ui/misc';
+import { Switch, Separator, Avatar, AvatarFallback, AvatarImage } from '@/components/ui/misc';
 import { toast } from '@/components/ui/toaster';
 import { CURRENCIES } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
-import { Loader2, User, Palette, ShieldCheck , LogOut, Smartphone, Languages } from 'lucide-react';
+import { Loader2, User, Palette, ShieldCheck, LogOut, Smartphone, Languages, Camera } from 'lucide-react';
 import { useLanguage, LANGUAGES } from '@/lib/language-context';
 
 export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const router = useRouter();
@@ -28,12 +31,20 @@ export default function SettingsPage() {
     resolver: zodResolver(updateProfileSchema),
   });
 
+  const { register: registerPassword, handleSubmit: handlePasswordSubmit, reset: resetPassword, formState: { errors: passwordErrors } } = useForm<ChangePasswordInput>({
+    resolver: zodResolver(changePasswordSchema),
+  });
+
   useEffect(() => {
     fetch('/api/auth/me').then(r => r.json()).then(j => {
       if (j.data?.user) {
         setUser(j.data.user);
         setValue('name', j.data.user.name);
         setValue('currency', j.data.user.currency);
+        if (j.data.user.avatar) {
+          setAvatarPreview(j.data.user.avatar);
+          setValue('avatar', j.data.user.avatar);
+        }
       }
     });
   }, [setValue]);
@@ -46,11 +57,48 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (res.ok) { toast({ title: t('profileUpdated') }); }
-      else { const j = await res.json(); throw new Error(j.error); }
+      if (res.ok) { toast({ title: t('profileUpdated') || 'Profile updated successfully' }); }
+      else { const j = await res.json(); throw new Error(j.error || j.message); }
     } catch (e: any) {
-      toast({ title: t('error'), description: e.message, variant: 'destructive' });
+      toast({ title: t('error') || 'Error', description: e.message, variant: 'destructive' });
     } finally { setLoading(false); }
+  };
+
+  const onPasswordSubmit = async (data: ChangePasswordInput) => {
+    setPasswordLoading(true);
+    try {
+      const res = await fetch('/api/auth/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) { 
+        toast({ title: 'Password updated successfully' }); 
+        resetPassword();
+      } else { 
+        const j = await res.json(); throw new Error(j.error || j.message); 
+      }
+    } catch (e: any) {
+      toast({ title: t('error') || 'Error', description: e.message, variant: 'destructive' });
+    } finally { setPasswordLoading(false); }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Please choose an image under 2MB', variant: 'destructive' });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      setAvatarPreview(result);
+      setValue('avatar', result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleLogout = async () => {
@@ -73,14 +121,28 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
-            <Avatar className="w-16 h-16">
-              <AvatarFallback className="bg-primary text-primary-foreground text-xl font-bold">
-                {user?.name?.charAt(0)?.toUpperCase() || '?'}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+              <Avatar className="w-16 h-16 border bg-muted">
+                <AvatarImage src={avatarPreview || ''} alt={user?.name || ''} className="object-cover" />
+                <AvatarFallback className="bg-primary text-primary-foreground text-xl font-bold">
+                  {user?.name?.charAt(0)?.toUpperCase() || '?'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <Camera className="w-6 h-6 text-white" />
+              </div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                className="hidden" 
+                accept="image/*" 
+              />
+            </div>
             <div>
               <p className="font-semibold">{user?.name}</p>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
+              <p className="text-xs text-primary mt-1 select-none">Click avatar to change photo</p>
             </div>
           </div>
           <Separator />
@@ -190,13 +252,46 @@ export default function SettingsPage() {
             <CardTitle className="text-base">{t('security')}</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent>
           <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
             <div>
-              <p className="text-sm font-medium">{t('accountEmail')}</p>
+              <p className="text-sm font-medium">{t('accountEmail') || 'Account Email'}</p>
               <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Change Password */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4" />
+            <CardTitle className="text-base">Change Password</CardTitle>
+          </div>
+          <CardDescription>Update your account password</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Current Password</Label>
+              <Input type="password" {...registerPassword('currentPassword')} className={passwordErrors.currentPassword ? 'border-destructive' : ''} />
+              {passwordErrors.currentPassword && <p className="text-xs text-destructive">{passwordErrors.currentPassword.message}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Label>New Password</Label>
+              <Input type="password" {...registerPassword('newPassword')} className={passwordErrors.newPassword ? 'border-destructive' : ''} />
+              {passwordErrors.newPassword && <p className="text-xs text-destructive">{passwordErrors.newPassword.message}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Label>Confirm New Password</Label>
+              <Input type="password" {...registerPassword('confirmPassword')} className={passwordErrors.confirmPassword ? 'border-destructive' : ''} />
+              {passwordErrors.confirmPassword && <p className="text-xs text-destructive">{passwordErrors.confirmPassword.message}</p>}
+            </div>
+            <Button type="submit" disabled={passwordLoading} variant="outline" className="w-full sm:w-auto">
+              {passwordLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : 'Update Password'}
+            </Button>
+          </form>
         </CardContent>
       </Card>
 
