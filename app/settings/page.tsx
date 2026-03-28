@@ -14,7 +14,7 @@ import { toast } from '@/components/ui/toaster';
 import { CURRENCIES } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
-import { Loader2, User, Palette, Shield, LogOut, Smartphone, Languages } from 'lucide-react';
+import { Loader2, User, Palette, ShieldCheck , LogOut, Smartphone, Languages } from 'lucide-react';
 import { useLanguage, LANGUAGES } from '@/lib/language-context';
 
 export default function SettingsPage() {
@@ -186,7 +186,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
+            <ShieldCheck className="w-4 h-4" />
             <CardTitle className="text-base">{t('security')}</CardTitle>
           </div>
         </CardHeader>

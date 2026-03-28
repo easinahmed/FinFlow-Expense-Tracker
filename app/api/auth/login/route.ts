@@ -20,6 +20,10 @@ export async function POST(req: NextRequest) {
       return apiError('Invalid email or password', 401);
     }
 
+    if (!user.isEmailVerified) {
+      return apiError('Please verify your email address before logging in.', 403);
+    }
+
     const isValid = await verifyPassword(password, user.password);
     if (!isValid) {
       return apiError('Invalid email or password', 401);

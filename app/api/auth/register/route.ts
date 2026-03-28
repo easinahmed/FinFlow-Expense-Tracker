@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { hashPassword, signToken, createAuthCookie } from '@/lib/auth';
 import { registerSchema } from '@/lib/validations';
 import { apiError, apiSuccess } from '@/lib/utils';
+import crypto from 'crypto';
+import { sendVerificationEmail } from '@/lib/mail';
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,21 +23,17 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(password);
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     
     const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword },
+      data: { name, email, password: hashedPassword, verifyToken, verifyTokenExpiry, isEmailVerified: false },
       select: { id: true, name: true, email: true, currency: true },
     });
 
-    const token = await signToken({ userId: user.id, email: user.email, name: user.name });
-    const cookie = createAuthCookie(token);
+    await sendVerificationEmail(user.email, verifyToken);
 
-    const response = apiSuccess({ user }, 201);
-    response.headers.set('Set-Cookie', 
-      `${cookie.name}=${cookie.value}; HttpOnly; ${cookie.secure ? 'Secure;' : ''} SameSite=Lax; Max-Age=${cookie.maxAge}; Path=/`
-    );
-    
-    return response;
+    return apiSuccess({ message: 'Registration successful. Please check your email to verify your account.' }, 201);
   } catch (error) {
     console.error('Register error:', error);
     return apiError('Internal server error', 500);
