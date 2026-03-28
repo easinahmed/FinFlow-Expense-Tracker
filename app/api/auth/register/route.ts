@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyToken = Math.floor(100000 + Math.random() * 900000).toString();
     const verifyTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     
     const user = await prisma.user.create({

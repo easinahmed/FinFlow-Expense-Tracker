@@ -41,9 +41,10 @@ export default function RegisterPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
-      toast({ title: t('accountCreated'), description: t('welcomeToFinFlow') });
-      router.push('/dashboard');
-      router.refresh();
+      toast({ title: t('accountCreated'), description: 'Please check your email for the verification code.' });
+      setTimeout(() => {
+        window.location.href = `/auth/verify-email?email=${encodeURIComponent(data.email)}`;
+      }, 500);
       return; // Let loader persist while routing
     } catch (err: any) {
       toast({ title: t('error') || 'Registration failed', description: err.message, variant: 'destructive' });

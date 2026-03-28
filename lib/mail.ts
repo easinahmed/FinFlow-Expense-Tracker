@@ -8,25 +8,22 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendVerificationEmail = async (email: string, token: string) => {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const verificationLink = `${appUrl}/api/auth/verify?token=${token}`;
-
+export const sendVerificationEmail = async (email: string, otp: string) => {
   const mailOptions = {
     from: `"FinFlow" <${process.env.GMAIL_USER}>`,
     to: email,
-    subject: 'Verify your email address - FinFlow',
+    subject: 'Your FinFlow Verification Code',
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Welcome to FinFlow!</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+        <h2 style="color: #6366f1;">Welcome to FinFlow!</h2>
         <p>You have registered an account to FinFlow Expense Tracker.</p>
-        <p>Please click the button below to verify your email address and activate your account.</p>
+        <p>Here is your 6-digit verification code to activate your account:</p>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationLink}" style="background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Verify Email</a>
+          <span style="background-color: #f3f4f6; color: #111827; padding: 16px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-size: 32px; font-weight: bold; letter-spacing: 8px;">
+            ${otp}
+          </span>
         </div>
-        <p>Or you can copy and paste this link into your browser:</p>
-        <p><a href="${verificationLink}">${verificationLink}</a></p>
-        <p>This verification link will expire in 24 hours.</p>
+        <p>This verification code will expire in 24 hours.</p>
         <p>If you did not register for this account, please ignore this email.</p>
       </div>
     `,
